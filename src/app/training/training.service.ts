@@ -2,9 +2,11 @@ import { Subject } from 'rxjs/Subject';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { map } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material';
 
 import { Exercise } from './exercise.model';
 import { Subscription } from 'rxjs';
+
 
 @Injectable()
 export class TrainingService {
@@ -17,7 +19,7 @@ export class TrainingService {
     private runningExercise: Exercise;
     private fbSubs: Subscription[] = [];
 
-    constructor(private db: AngularFirestore) {}
+    constructor(private db: AngularFirestore, private snackBar: MatSnackBar) {}
 
     fetchAvailableExercises() {
         this.fbSubs.push(this.db
@@ -35,6 +37,10 @@ export class TrainingService {
         ).subscribe((exercises: Exercise[]) => {
             this.availableExercises = exercises;
             this.exercisesChanged.next([...this.availableExercises]);
+        }, error => {
+            this.snackBar.open('Fetching exercises failed, please try again later', null, {
+                duration: 3000
+            });
         }));
     }
 
